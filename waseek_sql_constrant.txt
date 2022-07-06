@@ -1,0 +1,314 @@
+[oracle@clover ~]$ export ORACLE_SID=ORCL
+[oracle@clover ~]$ sqlplus / as sysdba
+
+SQL*Plus: Release 12.2.0.1.0 Production on Sat Mar 26 17:04:51 2022
+
+Copyright (c) 1982, 2016, Oracle.  All rights reserved.
+
+
+Connected to:
+Oracle Database 12c Enterprise Edition Release 12.2.0.1.0 - 64bit Production
+   
+SQL> create user mobile identified by mobile;
+
+User created.
+
+SQL> grant connect,resource to mobile;
+
+Grant succeeded.
+
+SQL> alter user mobile quota unlimited on users;
+
+User altered.
+
+SQL>
+SQL>
+SQL> conn mobile/mobile
+Connected.
+SQL> conn sys as sysdba
+Enter password:
+Connected.
+SQL>
+SQL>
+SQL>
+SQL> connect
+Enter user-name: mobile
+Enter password:
+Connected.
+SQL> show user
+USER is "MOBILE"
+
+SQL> create table emp (ID number(3),name varchar2(20)not null);
+
+Table created.
+
+SQL> insert into emp values(101,'javed');
+
+1 row created.
+
+SQL> insert into emp values(101,'');
+insert into emp values(101,'')
+                           *
+ERROR at line 1:
+ORA-01400: cannot insert NULL into ("MOBILE"."EMP"."NAME")
+
+
+SQL> commit;
+
+Commit complete.
+
+SQL> select * from emp;
+
+        ID NAME
+---------- --------------------
+       101 javed
+
+SQL> desc emp
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ ID                                                 NUMBER(3)
+ NAME                                      NOT NULL VARCHAR2(20)
+
+
+SQL> desc user_constraints
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ OWNER                                              VARCHAR2(128)
+ CONSTRAINT_NAME                                    VARCHAR2(128)
+ CONSTRAINT_TYPE                                    VARCHAR2(1)
+ TABLE_NAME                                         VARCHAR2(128)
+ SEARCH_CONDITION                                   LONG
+ SEARCH_CONDITION_VC                                VARCHAR2(4000)
+ R_OWNER                                            VARCHAR2(128)
+ R_CONSTRAINT_NAME                                  VARCHAR2(128)
+ DELETE_RULE                                        VARCHAR2(9)
+ STATUS                                             VARCHAR2(8)
+ DEFERRABLE                                         VARCHAR2(14)
+ DEFERRED                                           VARCHAR2(9)
+ VALIDATED                                          VARCHAR2(13)
+ GENERATED                                          VARCHAR2(14)
+ BAD                                                VARCHAR2(3)
+ RELY                                               VARCHAR2(4)
+ LAST_CHANGE                                        DATE
+ INDEX_OWNER                                        VARCHAR2(128)
+ INDEX_NAME                                         VARCHAR2(128)
+ INVALID                                            VARCHAR2(7)
+ VIEW_RELATED                                       VARCHAR2(14)
+ ORIGIN_CON_ID                                      NUMBER
+
+
+SQL> col OWNER for a15
+SQL> col CONSTRAINT_NAME for a20
+SQL> col TABLE_NAME for a20
+SQL> col R_CONSTRAINT_NAME for a20
+SQL>select OWNER,CONSTRAINT_NAME,CONSTRAINT_TYPE,TABLE_NAME,R_CONSTRAINT_NAME from user_constraints;
+
+
+OWNER           CONSTRAINT_NAME      C TABLE_NAME           R_CONSTRAINT_NAME
+--------------- -------------------- - -------------------- --------------------
+MOBILE          SYS_C007350          C EMP
+
+SQL> alter table emp drop CONSTRAINT SYS_C007350;
+
+Table altered.
+
+SQL> desc emp
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ ID                                                 NUMBER(3)
+ NAME                                               VARCHAR2(20)
+
+SQL> insert into emp values(101,'');
+
+1 row created.
+
+SQL> commit;
+
+Commit complete.
+
+SQL> create table dept (did number(30)unique,name varchar2(50));
+
+Table created.
+
+SQL> insert into dept(101,'javed');
+insert into dept(101,'javed')
+                 *
+ERROR at line 1:
+ORA-00928: missing SELECT keyword
+
+
+SQL>  insert into dept values (101,'javed');
+
+1 row created.
+
+SQL> insert into dept values (101,'javed');
+insert into dept values (101,'javed')
+*
+ERROR at line 1:
+ORA-00001: unique constraint (MOBILE.SYS_C007351) violated
+
+
+SQL> insert into dept values (102,'javed');
+
+1 row created.
+
+SQL> insert into dept values (102,'javed');
+insert into dept values (102,'javed')
+*
+ERROR at line 1:
+ORA-00001: unique constraint (MOBILE.SYS_C007351) violated
+
+
+SQL> commit;
+
+Commit complete.
+
+SQL> select * from dept;
+
+       DID NAME
+---------- --------------------------------------------------
+       101 javed
+       102 javed
+
+SQL> select OWNER,CONSTRAINT_NAME,CONSTRAINT_TYPE,TABLE_NAME,R_CONSTRAINT_NAME from user_constraints
+  2  ;
+
+OWNER           CONSTRAINT_NAME      C TABLE_NAME           R_CONSTRAINT_NAME
+--------------- -------------------- - -------------------- --------------------
+MOBILE          SYS_C007351          U DEPT
+
+SQL> col CONSTRAINT_TYPE for a30
+SQL> set line 176
+SQL> select OWNER,CONSTRAINT_NAME,CONSTRAINT_TYPE,TABLE_NAME,R_CONSTRAINT_NAME from user_constraints;
+
+
+OWNER           CONSTRAINT_NAME      CONSTRAINT_TYPE                TABLE_NAME           R_CONSTRAINT_NAME
+--------------- -------------------- ------------------------------ -------------------- --------------------
+MOBILE          SYS_C007351          U                              DEPT
+
+SQL> alter table dept drop constraint SYS_C007351;
+
+Table altered.
+
+SQL> insert into dept values (102,'javed');
+
+1 row created.
+
+SQL> insert into dept values (102,'javed');
+
+1 row created.
+
+SQL> insert into dept values (102,'javed');
+
+1 row created.
+
+SQL> commit;
+
+Commit complete.
+
+SQL> select * from dept;
+
+       DID NAME
+---------- --------------------------------------------------
+       101 javed
+       102 javed
+       102 javed
+       102 javed
+       102 javed
+
+SQL> create table colleage (cid number(30)primary key,name varchar2(50));
+
+Table created.
+
+SQL> insert into colleage values(101,'waseek');
+
+1 row created.
+
+SQL> insert into colleage values('','waseek');
+insert into colleage values('','waseek')
+                            *
+ERROR at line 1:
+ORA-01400: cannot insert NULL into ("MOBILE"."COLLEAGE"."CID")
+
+
+SQL> insert into colleage values(101,'waseek');
+insert into colleage values(101,'waseek')
+*
+ERROR at line 1:
+ORA-00001: unique constraint (MOBILE.SYS_C007352) violated
+
+
+SQL> commit;
+
+Commit complete.
+
+SQL> select OWNER,CONSTRAINT_NAME,CONSTRAINT_TYPE,TABLE_NAME,R_CONSTRAINT_NAME from user_constraints
+  2  ;
+
+OWNER           CONSTRAINT_NAME      CONSTRAINT_TYPE                TABLE_NAME           R_CONSTRAINT_NAME
+--------------- -------------------- ------------------------------ -------------------- --------------------
+MOBILE          SYS_C007352          P                              COLLEAGE
+
+SQL> create table bnn (cid number(20),name varchar2(40),sal number(20),primary key (cid,name));
+
+Table created.
+
+SQL> insert into bnn values(101,'waseek',30000);
+
+1 row created.
+
+SQL> insert into bnn values(102,'waseek',30000);
+
+1 row created.
+
+SQL> insert into bnn values(102,'waseek',30000);
+insert into bnn values(102,'waseek',30000)
+*
+ERROR at line 1:
+ORA-00001: unique constraint (MOBILE.SYS_C007353) violated
+
+
+SQL> insert into bnn values(102,'',30000);
+insert into bnn values(102,'',30000)
+                           *
+ERROR at line 1:
+ORA-01400: cannot insert NULL into ("MOBILE"."BNN"."NAME")
+
+
+SQL> commit;
+
+Commit complete.
+
+
+SQL> create table sitm (cid number(20),name varchar2(40),sal number(20) default 2000);
+
+Table created.
+
+SQL>
+SQL> insert into sitm values( 101,'ajeet',default);
+
+1 row created.
+
+SQL> select * from sitm;
+
+       CID NAME                                            SAL
+---------- ---------------------------------------- ----------
+       101 ajeet                                          2000
+
+SQL> insert into sitm values( 102,'ajeet',default);
+
+1 row created.
+
+SQL> insert into sitm values( 103,'ajeet',default);
+
+1 row created.
+
+SQL> select * from sitm;
+
+       CID NAME                                            SAL
+---------- ---------------------------------------- ----------
+       101 ajeet                                          2000
+       102 ajeet                                          2000
+       103 ajeet                                          2000
+
+SQL>

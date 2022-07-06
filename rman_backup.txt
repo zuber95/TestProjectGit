@@ -1,0 +1,201 @@
+ rman target /
+
+RMAN>  backup datafile 1;
+
+RMAN> backup tablespace users;
+
+RMAN> backup archivelog all;
+
+RMAN>  backup current controlfile;
+
+RMAN> backup spfile;
+
+RMAN> backup database;
+
+RMAN> list backup;
+-----------------------------------------
+
+RMAN> backup database format /u01/backup/full_%t_%d_%U';
+
+RMAN> backup current controlfile format '/u01/backup/control_%U.ctl';
+
+RMAN> backup spfile format '/u01/backup/spfile.bkp';
+
+RMAN> delete backup;
+
+
+step1> shutdown immediate
+
+step2 >startup mount;
+
+step3>alter database noarchivelog;
+
+step4 >alter database open;
+
+step5>alter system set log_archive_dest_1='location=/u01/arch';
+
+ run
+ {
+ allocate channel ch1 device type disk;
+ allocate channel ch2 device type disk;
+ backup database format'/home/oracle/backup/full_%U_%T_%d.bkp';
+ backup current controlfile format'/home/oracle/backup/ctl_%U_%T_%d.bkp';
+ backup archivelog all format'/home/oracle/backup/arch_%U_%T_%d.bkp';
+ backup spfile format'/home/oracle/backup/spfile_%U_%T_%d.bkp';
+ release channel ch1;
+ release channel ch2;
+ }
+ 
+ 
+ 
+ RMAN> exit
+
+
+Recovery Manager complete.
+[oracle@iconicdr backup]$ ll
+total 1312440
+-rw-r-----. 1 oracle oinstall  48936960 Jun  7 00:06 arch_040vdnoa_1_1_20220607_MACLEN.bkp
+-rw-r-----. 1 oracle oinstall  10682368 Jun  7 00:06 ctl_030vdno8_1_1_20220607_MACLEN.bkp
+-rw-r-----. 1 oracle oinstall 831913984 Jun  7 00:06 full_010vdno1_1_1_20220607_MACLEN.bkp
+-rw-r-----. 1 oracle oinstall 452288512 Jun  7 00:06 full_020vdno1_1_1_20220607_MACLEN.bkp
+-rw-r-----. 1 oracle oinstall    114688 Jun  7 00:06 spfile_050vdnob_1_1_20220607_MACLEN.bkp
+[oracle@iconicdr backup]$
+[oracle@iconicdr backup]$
+[oracle@iconicdr backup]$
+[oracle@iconicdr backup]$ !sq
+sqlplus / as sysdba
+
+SQL*Plus: Release 19.0.0.0.0 - Production on Tue Jun 7 00:12:57 2022
+Version 19.3.0.0.0
+
+Copyright (c) 1982, 2019, Oracle.  All rights reserved.
+
+
+Connected to:
+Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production
+Version 19.3.0.0.0
+
+SQL> create pfile from spfile;
+
+File created.
+
+SQL> exit
+Disconnected from Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production
+Version 19.3.0.0.0
+[oracle@iconicdr backup]$ cd $ORACLE_HOME/dbs
+[oracle@iconicdr dbs]$ ll
+total 90060
+
+-rw-r--r--. 1 oracle oinstall      952 Jun  7 00:13 initMACLEN.ora
+-rw-r--r--. 1 oracle oinstall      829 May 21 17:51 initodsp.ora
+-rw-r--r--. 1 oracle oinstall     3079 May 14  2015 init.ora
+-rw-r-----. 1 oracle oinstall       24 Jun  4 12:46 lkMACLEN
+-rw-r-----. 1 oracle oinstall       24 May 18 17:27 lkODSP
+-rw-r-----. 1 oracle oinstall       24 May 21 17:31 lkODSP_A
+-rw-r-----. 1 oracle oinstall       24 May 21 17:55 lkODSP_B
+-rw-r-----. 1 oracle oinstall     2048 Jun  4 12:48 orapwMACLEN
+-rw-r-----. 1 oracle oinstall     2048 May 22 11:09 orapwodsp
+-rw-r-----. 1 oracle oinstall 10600448 Jun  7 00:06 snapcf_MACLEN.f
+-rw-r-----. 1 oracle oinstall 10895360 May 22 18:52 snapcf_odsp.f
+-rw-r-----. 1 oracle oinstall     2560 Jun  6 23:52 spfileMACLEN.ora
+-rw-r-----. 1 oracle oinstall     4608 Jun  6 23:11 spfileodsp.ora
+[oracle@iconicdr dbs]$ vi initMACLEN.ora
+[oracle@iconicdr dbs]$ cat initMACLEN.ora
+MACLEN.__data_transfer_cache_size=0
+MACLEN.__db_cache_size=436207616
+MACLEN.__inmemory_ext_roarea=0
+MACLEN.__inmemory_ext_rwarea=0
+MACLEN.__java_pool_size=16777216
+MACLEN.__large_pool_size=16777216
+MACLEN.__oracle_base='/oracle/app'#ORACLE_BASE set from environment
+MACLEN.__pga_aggregate_target=671088640
+MACLEN.__sga_target=889192448
+MACLEN.__shared_io_pool_size=50331648
+MACLEN.__shared_pool_size=318767104
+MACLEN.__streams_pool_size=33554432
+MACLEN.__unified_pga_pool_size=0
+*.audit_file_dest='/oracle/app/admin/MACLEN/adump'
+*.audit_trail='db'
+*.compatible='19.0.0'
+*.control_files='/oradata/MACLEN/control01.ctl','/oradata/MACLEN/control02.ctl'
+*.db_block_size=8192
+*.db_name='MACLEN'
+*.diagnostic_dest='/oracle/app'
+*.dispatchers='(PROTOCOL=TCP) (SERVICE=MACLENXDB)'
+*.memory_target=1476m
+*.nls_language='AMERICAN'
+*.nls_territory='AMERICA'
+*.open_cursors=300
+*.processes=300
+*.remote_login_passwordfile='EXCLUSIVE'
+*.undo_tablespace='UNDOTBS1'
+[oracle@iconicdr dbs]$
+
+after chenge to testdb ========
+[oracle@iconicdr dbs]$ vi initMACLEN.ora
+MACLEN.__data_transfer_cache_size=0
+MACLEN.__db_cache_size=436207616
+MACLEN.__inmemory_ext_roarea=0
+MACLEN.__inmemory_ext_rwarea=0
+MACLEN.__java_pool_size=16777216
+MACLEN.__large_pool_size=16777216
+MACLEN.__oracle_base='/oracle/app'#ORACLE_BASE set from environment
+MACLEN.__pga_aggregate_target=671088640
+MACLEN.__sga_target=889192448
+MACLEN.__shared_io_pool_size=50331648
+MACLEN.__shared_pool_size=318767104
+MACLEN.__streams_pool_size=33554432
+MACLEN.__unified_pga_pool_size=0
+*.audit_file_dest='/oracle/app/admin/testdb/adump'
+*.audit_trail='db'
+*.compatible='19.0.0'
+*.control_files='/oradata/testdb/control01.ctl','/oradata/testdb/control02.ctl'
+*.db_block_size=8192
+*.db_name='MACLEN'
+*.diagnostic_dest='/oracle/app'
+*.dispatchers='(PROTOCOL=TCP) (SERVICE=testdbXDB)'
+*.db_unique_name= 'testdb'
+*.instance_name='testdb'
+*.log_archive_dest_1='LOCATION=oracle/home/arch'
+*.memory_target=1476m
+*.nls_language='AMERICAN'
+*.nls_territory='AMERICA'
+*.open_cursors=300
+*.processes=300
+*.remote_login_passwordfile='EXCLUSIVE'
+*.undo_tablespace='UNDOTBS1'
+
+[oracle@iconicdr dbs]$ mkdir -p /oracle/app/admin/testdb/adump
+[oracle@iconicdr dbs]$ mkdir -p /oradata/testdb/
+[oracle@iconicdr dbs]$ mkdir -p /oradata/testdb/arch
+
+[oracle@iconicdr dbs]$ ll
+total 90060
+
+-rw-r--r--. 1 oracle oinstall     1059 Jun  7 00:24 initMACLEN.ora
+-rw-r--r--. 1 oracle oinstall      829 May 21 17:51 initodsp.ora
+-rw-r--r--. 1 oracle oinstall     3079 May 14  2015 init.ora
+-rw-r-----. 1 oracle oinstall       24 Jun  4 12:46 lkMACLEN
+-rw-r-----. 1 oracle oinstall       24 May 18 17:27 lkODSP
+-rw-r-----. 1 oracle oinstall       24 May 21 17:31 lkODSP_A
+-
+[oracle@iconicdr dbs]$ mv initMACLEN.ora inittestdb.ora
+[oracle@iconicdr dbs]$ ll
+total 90060
+
+-rw-r--r--. 1 oracle oinstall     1059 Jun  7 00:24 inittestdb.ora
+-rw-r-----. 1 oracle oinstall       24 Jun  4 12:46 lkMACLEN
+-rw-r-----. 1 oracle oinstall       24 May 18 17:27 lkODSP
+-rw-r-----. 1 oracle oinstall       24 May 21 17:31 lkODSP_A
+-rw-r-----. 1 oracle oinstall       24 May 21 17:55 lkODSP_B
+-rw-r-----. 1 oracle oinstall     2048 Jun  4 12:48 orapwMACLEN
+-rw-r-----. 1 oracle oinstall     2048 May 22 11:09 orapwodsp
+-rw-r-----. 1 oracle oinstall 10600448 Jun  7 00:06 snapcf_MACLEN.f
+-rw-r-----. 1 oracle oinstall 10895360 May 22 18:52 snapcf_odsp.f
+-rw-r-----. 1 oracle oinstall     2560 Jun  6 23:52 spfileMACLEN.ora
+-rw-r-----. 1 oracle oinstall     4608 Jun  6 23:11 spfileodsp.ora
+
+
+
+
+

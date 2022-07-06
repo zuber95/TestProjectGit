@@ -1,0 +1,383 @@
+login as: oracle
+oracle@192.168.44.137's password:
+Last login: Tue Feb  1 21:48:14 2022 from 192.168.44.129
+[oracle@google ~]$ cat /etc/oratab
+#
+
+
+
+# This file is used by ORACLE utilities.  It is created by root.sh
+# and updated by either Database Configuration Assistant while creating
+# a database or ASM Configuration Assistant while creating ASM instance.
+
+# A colon, ':', is used as the field terminator.  A new line terminates
+# the entry.  Lines beginning with a pound sign, '#', are comments.
+#
+# Entries are of the form:
+#   $ORACLE_SID:$ORACLE_HOME:<N|Y>:
+#
+# The first and second fields are the system identifier and home
+# directory of the database respectively.  The third field indicates
+# to the dbstart utility that the database should , "Y", or should not,
+# "N", be brought up at system boot time.
+#
+# Multiple entries with the same $ORACLE_SID are not allowed.
+#
+#
+PROD:/u01/app/oracle/product/12.2.0/dbhome_1:N
+PRIME:/u01/app/oracle/product/12.2.0/dbhome_1:N
+[oracle@google ~]$ export ORACLE_SID=PRIME
+[oracle@google ~]$ sqlplus / as sysdba
+
+SQL*Plus: Release 12.2.0.1.0 Production on Wed Feb 2 01:33:58 2022
+
+Copyright (c) 1982, 2016, Oracle.  All rights reserved.
+
+Connected to an idle instance.
+
+SQL> startup;
+ORACLE instance started.
+
+Total System Global Area 2516582400 bytes
+Fixed Size                  8623832 bytes
+Variable Size             671090984 bytes
+Database Buffers         1828716544 bytes
+Redo Buffers                8151040 bytes
+Database mounted.
+Database opened.
+SQL> select name,open_mode from v$database;
+
+NAME      OPEN_MODE
+--------- --------------------
+PRIME     READ WRITE
+
+SQL>
+SQL> create user mobile identified by mobile;
+
+User created.
+
+SQL> grant connect ,resource to mobile;
+
+Grant succeeded.
+
+SQL> 
+User altered.
+
+SQL>
+SQL>
+
+SQL> SQL> conn mobile
+Enter password:
+Connected.
+SQL> show user
+USER is "MOBILE"
+SQL>
+SQL>
+SQL> create table emp (id number(4),name varchar2(20),city varchar2(30),salary number(6));
+
+Table created.
+
+SQL> select * from tab;
+
+TNAME
+--------------------------------------------------------------------------------
+TABTYPE  CLUSTERID
+------- ----------
+EMP
+TABLE
+
+
+SQL> col TNAME for a25
+SQL> set line 154
+SQL> select * from tab;
+
+TNAME                     TABTYPE  CLUSTERID
+------------------------- ------- ----------
+EMP                       TABLE
+
+SQL> create view emp_v1 as select id,name,city from emp;
+create view emp_v1 as select id,name,city from emp
+            *
+ERROR at line 1:
+ORA-01031: insufficient privileges
+
+
+SQL> conn sys as sysdba
+Enter password:
+Connected.
+SQL> grant create view to mobile;
+
+Grant succeeded.
+
+SQL> conn mobile/mobile
+Connected.
+SQL> show user
+USER is "MOBILE"
+SQL> create view emp_v1 as select id,name,city from emp;
+
+View created.
+
+SQL>  select * from tab;
+
+TNAME                     TABTYPE  CLUSTERID
+------------------------- ------- ----------
+EMP                       TABLE
+EMP_V1                    VIEW
+
+SQL> insert into emp values(1,'sirjeet','bwd',20000);
+
+1 row created.
+
+SQL> insert into emp values(2,'naveed','bwd',20000);
+
+1 row created.
+
+SQL> commit;
+
+Commit complete.
+
+SQL> select * from emp;
+
+        ID NAME                 CITY                               SALARY
+---------- -------------------- ------------------------------ ----------
+         1 sirjeet              bwd                                 20000
+         2 naveed               bwd                                 20000
+
+SQL> select * from emp_v1;
+
+        ID NAME                 CITY
+---------- -------------------- ------------------------------
+         1 sirjeet              bwd
+         2 naveed               bwd
+
+SQL> drop view emp_v1;
+
+View dropped.
+
+SQL> select * from tab;
+
+TNAME                     TABTYPE  CLUSTERID
+------------------------- ------- ----------
+EMP                       TABLE
+
+SQL> select * from emp;
+
+        ID NAME                 CITY                               SALARY
+---------- -------------------- ------------------------------ ----------
+         1 sirjeet              bwd                                 20000
+         2 naveed               bwd                                 20000
+
+SQL> create unique index emp_idx on emp(id);
+
+Index created.
+
+SQL> select * from tab;
+
+TNAME                     TABTYPE  CLUSTERID
+------------------------- ------- ----------
+EMP                       TABLE
+
+SQL> desc user_indexes
+ Name                                                                                  Null?    Type
+ ------------------------------------------------------------------------------------- -------- ----------------------------------------------------------
+ INDEX_NAME                                                                            NOT NULL VARCHAR2(128)
+ INDEX_TYPE                                                                                     VARCHAR2(27)
+ TABLE_OWNER                                                                           NOT NULL VARCHAR2(128)
+ TABLE_NAME                                                                            NOT NULL VARCHAR2(128)
+ TABLE_TYPE                                                                                     VARCHAR2(11)
+ UNIQUENESS                                                                                     VARCHAR2(9)
+ COMPRESSION                                                                                    VARCHAR2(13)
+ PREFIX_LENGTH                                                                                  NUMBER
+ TABLESPACE_NAME                                                                                VARCHAR2(30)
+ INI_TRANS                                                                                      NUMBER
+ MAX_TRANS                                                                                      NUMBER
+ INITIAL_EXTENT                                                                                 NUMBER
+ NEXT_EXTENT                                                                                    NUMBER
+ MIN_EXTENTS                                                                                    NUMBER
+ MAX_EXTENTS                                                                                    NUMBER
+ PCT_INCREASE                                                                                   NUMBER
+ PCT_THRESHOLD                                                                                  NUMBER
+ INCLUDE_COLUMN                                                                                 NUMBER
+ FREELISTS                                                                                      NUMBER
+ FREELIST_GROUPS                                                                                NUMBER
+ PCT_FREE                                                                                       NUMBER
+ LOGGING                                                                                        VARCHAR2(3)
+ BLEVEL                                                                                         NUMBER
+ LEAF_BLOCKS                                                                                    NUMBER
+ DISTINCT_KEYS                                                                                  NUMBER
+ AVG_LEAF_BLOCKS_PER_KEY                                                                        NUMBER
+ AVG_DATA_BLOCKS_PER_KEY                                                                        NUMBER
+ CLUSTERING_FACTOR                                                                              NUMBER
+ STATUS                                                                                         VARCHAR2(8)
+ NUM_ROWS                                                                                       NUMBER
+ SAMPLE_SIZE                                                                                    NUMBER
+ LAST_ANALYZED                                                                                  DATE
+ DEGREE                                                                                         VARCHAR2(40)
+ INSTANCES                                                                                      VARCHAR2(40)
+ PARTITIONED                                                                                    VARCHAR2(3)
+ TEMPORARY                                                                                      VARCHAR2(1)
+ GENERATED                                                                                      VARCHAR2(1)
+ SECONDARY                                                                                      VARCHAR2(1)
+ BUFFER_POOL                                                                                    VARCHAR2(7)
+ FLASH_CACHE                                                                                    VARCHAR2(7)
+ CELL_FLASH_CACHE                                                                               VARCHAR2(7)
+ USER_STATS                                                                                     VARCHAR2(3)
+ DURATION                                                                                       VARCHAR2(15)
+ PCT_DIRECT_ACCESS                                                                              NUMBER
+ ITYP_OWNER                                                                                     VARCHAR2(128)
+ ITYP_NAME                                                                                      VARCHAR2(128)
+ PARAMETERS                                                                                     VARCHAR2(1000)
+ GLOBAL_STATS                                                                                   VARCHAR2(3)
+ DOMIDX_STATUS                                                                                  VARCHAR2(12)
+ DOMIDX_OPSTATUS                                                                                VARCHAR2(6)
+ FUNCIDX_STATUS                                                                                 VARCHAR2(8)
+ JOIN_INDEX                                                                                     VARCHAR2(3)
+ IOT_REDUNDANT_PKEY_ELIM                                                                        VARCHAR2(3)
+ DROPPED                                                                                        VARCHAR2(3)
+ VISIBILITY                                                                                     VARCHAR2(9)
+ DOMIDX_MANAGEMENT                                                                              VARCHAR2(14)
+ SEGMENT_CREATED                                                                                VARCHAR2(3)
+ ORPHANED_ENTRIES                                                                               VARCHAR2(3)
+ INDEXING                                                                                       VARCHAR2(7)
+
+SQL> select INDEX_NAME,INDEX_TYPE,TABLE_NAME,TABLE_OWNER from user_indexes;
+
+INDEX_NAME
+--------------------------------------------------------------------------------------------------------------------------------
+INDEX_TYPE
+---------------------------
+TABLE_NAME
+--------------------------------------------------------------------------------------------------------------------------------
+TABLE_OWNER
+--------------------------------------------------------------------------------------------------------------------------------
+EMP_IDX
+NORMAL
+EMP
+MOBILE
+
+
+SQL> col INDEX_NAME for a20
+SQL> col TABLE_NAME for a20
+SQL> col TABLE_OWNER for a20
+SQL> set line 154
+SQL> ;
+  1* select INDEX_NAME,INDEX_TYPE,TABLE_NAME,TABLE_OWNER from user_indexes
+SQL> /
+
+INDEX_NAME           INDEX_TYPE                  TABLE_NAME           TABLE_OWNER
+-------------------- --------------------------- -------------------- --------------------
+EMP_IDX              NORMAL                      EMP                  MOBILE
+
+SQL>  insert into emp values(2,'naveed','bwd',20000);
+ insert into emp values(2,'naveed','bwd',20000)
+*
+ERROR at line 1:
+ORA-00001: unique constraint (MOBILE.EMP_IDX) violated
+
+
+SQL> select * from emp;
+
+        ID NAME                 CITY                               SALARY
+---------- -------------------- ------------------------------ ----------
+         1 sirjeet              bwd                                 20000
+         2 naveed               bwd                                 20000
+
+SQL>  insert into emp values(3,'naveed','bwd',20000);
+
+1 row created.
+
+SQL> commit;
+
+Commit complete.
+
+SQL> select * from emp;
+
+        ID NAME                 CITY                               SALARY
+---------- -------------------- ------------------------------ ----------
+         1 sirjeet              bwd                                 20000
+         2 naveed               bwd                                 20000
+         3 naveed               bwd                                 20000
+
+SQL> create index emp_inx1 on emp(name,city);
+
+Index created.
+
+SQL> select INDEX_NAME,INDEX_TYPE,TABLE_NAME,TABLE_OWNER from user_indexes; 
+
+INDEX_NAME           INDEX_TYPE                  TABLE_NAME           TABLE_OWNER
+-------------------- --------------------------- -------------------- --------------------
+EMP_IDX              NORMAL                      EMP                  MOBILE
+EMP_INX1             NORMAL                      EMP                  MOBILE
+
+SQL>  insert into emp values(4,'naveed','bwd',20000);
+
+1 row created.
+
+SQL> create bitmap index EMP_INX_bit on emp(salary);
+
+Index created.
+
+SQL> select INDEX_NAME,INDEX_TYPE,TABLE_NAME,TABLE_OWNER from user_indexes;
+
+INDEX_NAME           INDEX_TYPE                  TABLE_NAME           TABLE_OWNER
+-------------------- --------------------------- -------------------- --------------------
+EMP_IDX              NORMAL                      EMP                  MOBILE
+EMP_INX1             NORMAL                      EMP                  MOBILE
+EMP_INX_BIT          BITMAP                      EMP                  MOBILE
+
+
+SQL>  desc user_ind_columns
+ Name                                                                                  Null?    Type
+ ------------------------------------------------------------------------------------- -------- ----------------------------------------------------------
+ INDEX_NAME                                                                                     VARCHAR2(128)
+ TABLE_NAME                                                                                     VARCHAR2(128)
+ COLUMN_NAME                                                                                    VARCHAR2(4000)
+ COLUMN_POSITION                                                                                NUMBER
+ COLUMN_LENGTH                                                                                  NUMBER
+ CHAR_LENGTH                                                                                    NUMBER
+ DESCEND                                                                                        VARCHAR2(4)
+ COLLATED_COLUMN_ID                                                                             NUMBER
+
+SQL> select INDEX_NAME,TABLE_NAME,COLUMN_NAME from user_ind_columns where INDEX_NAME='EMP_INX1';
+
+INDEX_NAME           TABLE_NAME
+-------------------- --------------------
+COLUMN_NAME
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+EMP_INX1             EMP
+NAME
+
+EMP_INX1             EMP
+CITY
+
+
+SQL> col COLUMN_NAME for a32
+SQL> ;
+  1* select INDEX_NAME,TABLE_NAME,COLUMN_NAME from user_ind_columns where INDEX_NAME='EMP_INX1'
+SQL> /
+
+INDEX_NAME           TABLE_NAME           COLUMN_NAME
+-------------------- -------------------- --------------------------------
+EMP_INX1             EMP                  NAME
+EMP_INX1             EMP                  CITY
+
+SQL> select INDEX_NAME,TABLE_NAME,COLUMN_NAME from user_ind_columns where INDEX_NAME='EMP_INX';
+
+no rows selected
+
+SQL> select INDEX_NAME,TABLE_NAME,COLUMN_NAME from user_ind_columns where INDEX_NAME='EMP_IDX';
+
+INDEX_NAME           TABLE_NAME           COLUMN_NAME
+-------------------- -------------------- --------------------------------
+EMP_IDX              EMP                  ID
+
+SQL> select INDEX_NAME,TABLE_NAME,COLUMN_NAME from user_ind_columns where INDEX_NAME='EMP_INX_BIT';
+
+INDEX_NAME           TABLE_NAME           COLUMN_NAME
+-------------------- -------------------- --------------------------------
+EMP_INX_BIT          EMP                  SALARY
+
+SQL> drop index EMP_INX_BIT;
+
+Index dropped.
+

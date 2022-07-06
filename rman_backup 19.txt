@@ -1,0 +1,149 @@
+ rman target /
+
+RMAN>  backup datafile 1;
+
+RMAN> backup tablespace users;
+
+RMAN> backup archivelog all;
+
+RMAN>  backup current controlfile;
+
+RMAN> backup spfile;
+
+RMAN> backup database;
+
+RMAN> list backup;
+-----------------------------------------
+
+RMAN> backup database format /u01/backup/full_%t_%d_%U';
+
+RMAN> backup current controlfile format '/u01/backup/control_%U.ctl';
+
+RMAN> backup spfile format '/u01/backup/spfile.bkp';
+
+RMAN> delete backup;
+
+
+step1> shutdown immediate
+
+step2 >startup mount;
+
+step3>alter database noarchivelog;
+
+step4 >alter database open;
+
+show all;
+
+run
+{
+allocate channel c1 devie type disk;
+allocate channel c2 devie type disk;
+backup database format '/u01/backupp/full_%T_%D_%U.bkp';
+backup current controlfile format '/u01/backupp/control_%U.ctl';
+backup spfile format '/u01/backupp/spfile.bkp';
+backup archivelog all format '/u01/backupp/arc_%d_%T_%U.bkp';
+release channel c1;
+release channel c2;
+}
+
+
+
+
+
+DLMSUAT.__data_transfer_cache_size=0
+DLMSUAT.__db_cache_size=1962934272
+DLMSUAT.__inmemory_ext_roarea=0
+DLMSUAT.__inmemory_ext_rwarea=0
+DLMSUAT.__java_pool_size=16777216
+DLMSUAT.__large_pool_size=33554432
+DLMSUAT.__oracle_base='/u01/app/oracle/base'#ORACLE_BASE set from environment
+DLMSUAT.__pga_aggregate_target=822083584
+DLMSUAT.__sga_target=3221225472
+DLMSUAT.__shared_io_pool_size=134217728
+DLMSUAT.__shared_pool_size=520093696
+DLMSUAT.__streams_pool_size=536870912
+*.audit_file_dest='/u01/app/oracle/base/admin/DLMSUAT/adump'
+*.audit_trail='db'
+*.compatible='12.2.0'
+*.control_files='/u01/app/oracle/oradata/DLMSUAT/control01.ctl','/u01/app/oracle/oradata/DLMSUAT/control02.ctl'
+*.db_block_size=8192
+*.db_name='DLMSUAT'
+*.diagnostic_dest='/u01/app/oracle/base'
+*.dispatchers='(PROTOCOL=TCP) (SERVICE=DLMSUATXDB)'
+*.enable_goldengate_replication=TRUE
+*.log_archive_dest_1='location=/u01/app/oracle/oradata/DLMSUAT/arch'
+*.nls_language='AMERICAN'
+*.nls_territory='AMERICA'
+*.open_cursors=300
+*.pga_aggregate_target=773m
+*.processes=500
+*.remote_login_passwordfile='EXCLUSIVE'
+*.sga_max_size=3221225472
+*.sga_target=3221225472
+*.streams_pool_size=524288000
+*.undo_tablespace='UNDOTBS1'
+[oracle@batch4 dbs]$
+
+
+
+
+DLMSUAT.__data_transfer_cache_size=0
+DLMSUAT.__db_cache_size=1962934272
+DLMSUAT.__inmemory_ext_roarea=0
+DLMSUAT.__inmemory_ext_rwarea=0
+DLMSUAT.__java_pool_size=16777216
+DLMSUAT.__large_pool_size=33554432
+DLMSUAT.__oracle_base='/u01/app/oracle/base'#ORACLE_BASE set from environment
+DLMSUAT.__pga_aggregate_target=822083584
+DLMSUAT.__sga_target=3221225472
+DLMSUAT.__shared_io_pool_size=134217728
+DLMSUAT.__shared_pool_size=520093696
+DLMSUAT.__streams_pool_size=536870912
+*.audit_file_dest='/u01/app/oracle/base/admin/DLMSUAT/adump'
+*.audit_trail='db'
+*.compatible='12.2.0'
+*.control_files='/u01/app/oracle/oradata/DLMSUAT/control01.ctl','/u01/app/oracle/oradata/DLMSUAT/control02.ctl'
+*.db_block_size=8192
+*.db_name='DLMSUAT'
+*.diagnostic_dest='/u01/app/oracle/base'
+*.dispatchers='(PROTOCOL=TCP) (SERVICE=DLMSUATXDB)'
+*.enable_goldengate_replication=TRUE
+*.log_archive_dest_1='location=/u01/app/oracle/oradata/DLMSUAT/arch'
+*.nls_language='AMERICAN'
+*.nls_territory='AMERICA'
+*.open_cursors=300
+*.pga_aggregate_target=773m
+*.processes=500
+*.remote_login_passwordfile='EXCLUSIVE'
+*.sga_max_size=3221225472
+*.sga_target=3221225472
+*.streams_pool_size=524288000
+*.undo_tablespace='UNDOTBS1'
+[oracle@batch4 dbs]$
+===================================
+
+
+
+*.audit_file_dest='/u01/app/oracle/base/admin/testdb/adump'
+*.audit_trail='db'
+*.compatible='12.2.0'
+*.control_files='/u01/app/oracle/oradata/testdb/control01.ctl','/u01/app/oracle/oradata/testdb/control02.ctl'
+*.db_block_size=8192
+*.db_name='DLMSUAT'
+*.diagnostic_dest='/u01/app/oracle/base'
+*.dispatchers='(PROTOCOL=TCP) (SERVICE=testdbXDB)'
+*.enable_goldengate_replication=TRUE
+*.log_archive_dest_1='location=/u01/app/oracle/oradata/testdb/arch'
+*.nls_language='AMERICAN'
+*.db_name='MACLEN'
+*.instance_name='testdb'
+*.log_archive_dest_1='LOCATION=/oradata/testdb/arch'
+*.nls_territory='AMERICA'
+*.open_cursors=300
+*.pga_aggregate_target=773m
+*.processes=500
+*.remote_login_passwordfile='EXCLUSIVE'
+*.sga_max_size=3221225472
+*.sga_target=3221225472
+*.streams_pool_size=524288000
+*.undo_tablespace='UNDOTBS1'

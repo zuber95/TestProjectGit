@@ -1,0 +1,141 @@
+-------------RMAN PRACTICE WITH AJEET SIR-------------
+
+login as: oracle
+oracle@192.168.44.141's password:redhat
+Last failed login: Wed Apr  6 01:27:21 IST 2022 from 192.168.44.129 on ssh:notty
+There was 1 failed login attempt since the last successful login.
+Last login: Wed Apr  6 01:25:32 2022
+-----check ip address---
+[oracle@iconicgoogle ~]$ ip r l
+default via 192.168.44.1 dev ens33 proto static metric 100
+192.168.44.0/24 dev ens33 proto kernel scope link src 192.168.44.141 metric 100
+192.168.122.0/24 dev virbr0 proto kernel scope link src 192.168.122.1
+---check mountpoit(folder)-----
+[oracle@iconicgoogle ~]$ df -h
+Filesystem           Size  Used Avail Use% Mounted on
+devtmpfs             1.8G     0  1.8G   0% /dev
+tmpfs                1.9G     0  1.9G   0% /dev/shm
+tmpfs                1.9G  9.9M  1.8G   1% /run
+tmpfs                1.9G     0  1.9G   0% /sys/fs/cgroup
+/dev/mapper/ol-root   10G  4.6G  5.4G  47% /
+/dev/sda1           1014M  217M  798M  22% /boot
+/dev/mapper/ol-u02    27G   33M   27G   1% /u02
+/dev/mapper/ol-u01    29G   19G   11G  64% /u01
+/dev/mapper/ol-home   11G   42M   11G   1% /home
+tmpfs                370M  4.0K  370M   1% /run/user/42
+tmpfs                370M   52K  370M   1% /run/user/54321
+/dev/sr0             4.2G  4.2G     0 100% /run/media/oracle/OL-7.5 Server.x86_64
+---move to mount point----
+[oracle@iconicgoogle ~]$ cd /u01
+----check mount point status----
+[oracle@iconicgoogle u01]$ ll
+total 0
+drwxr-xr-x. 3 oracle oinstall 20 Apr  5 00:53 app
+[oracle@iconicgoogle u01]$ cd
+[oracle@iconicgoogle ~]$ cd /u02
+[oracle@iconicgoogle u02]$ ll
+total 0
+-----make folder and check permission---
+[oracle@iconicgoogle u02]$ mkdir backup
+mkdir: cannot create directory ‘backup’: Permission denied
+----Give permission ownership and go to root user-----
+[oracle@iconicgoogle u02]$ su -
+Password:redhat
+Last login: Tue Apr  5 01:06:58 IST 2022 on pts/0
+[root@iconicgoogle ~]# chown -R oracle:oinstall /u02
+[root@iconicgoogle ~]# cd /u02
+[root@iconicgoogle u02]# ll
+total 0
+drwxr-xr-x 2 root root 6 Apr  6 01:32 backup
+----Go to Oracle User---
+[root@iconicgoogle ~]# su - oracle
+Last login: Wed Apr  6 01:27:26 IST 2022 from 192.168.44.129 on pts/1
+[oracle@iconicgoogle backup]$ pwd
+/u02/backup
+----connect to database----
+[oracle@iconicgoogle backup]$ cat /etc/oratab
+[oracle@iconicgoogle backup]$ export ORACLE_SID=prod
+[oracle@iconicgoogle backup]$ sqlplus / as sysdba
+SQL> startup nomount
+ORACLE instance started.
+---database open stages--- 
+SQL> startup nomount;
+ORACLE instance started.
+Total System Global Area 1174405120 bytes
+Fixed Size                  8619984 bytes
+Variable Size             436209712 bytes
+Database Buffers          721420288 bytes
+Redo Buffers                8155136 bytes
+
+SQL> alter database mount;
+Database altered.
+SQL> alter database open;
+
+Database altered.
+
+SQL> select instance_name from v$instance;
+
+INSTANCE_NAME
+----------------
+prod
+
+SQL> select name,open_mode from v$database;
+
+NAME      OPEN_MODE
+--------- --------------------
+PROD      READ WRITE
+---only for status check---
+SQL> select instance_name,status from v$instance;
+
+INSTANCE_NAME    STATUS
+---------------- ------------
+prod             OPEN
+---check archive mode---
+SQL> select log_mode from v$database;
+
+LOG_MODE
+------------
+NOARCHIVELOG
+SQL> SHUTDOWN immediate
+
+---Databse change to archive log mode ---
+SQL> startup mount
+ORACLE instance started.
+
+Total System Global Area 1174405120 bytes
+Fixed Size                  8619984 bytes
+Variable Size             436209712 bytes
+Database Buffers          721420288 bytes
+Redo Buffers                8155136 bytes
+selDatabase mounted.
+SQ
+SQL> alter database archivelog;
+
+Database altered.
+
+SQL> alter database open;
+
+Database altered.
+SQL> select log_mode from v$database;
+
+LOG_MODE
+------------
+ARCHIVELOG
+SQL> exit
+----connect to RMAN ----
+[oracle@iconicgoogle ~]$ rman target /
+----check backup -----
+RMAN> show all;
+RMAN> list backup;
+specification does not match any backup in the repository
+
+
+
+
+
+
+
+
+
+ backup database format '/u02/backup/full_%d_%T_%U.bak';
+
