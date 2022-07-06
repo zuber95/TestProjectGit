@@ -1,0 +1,23 @@
+kubectl api-versions
+kubectl cluster-info  // give info about the cluster 
+kubectl get services  //List all replication controllers and services together in plain-text output format.
+kubectl describe nodes  // give infor about the nodes
+// Delete a pod using the type and name specified in the pod.yaml file.
+$ kubectl delete -f pod.yaml
+
+// Delete all the pods and services that have the label name=<label-name>.
+$ kubectl delete pods,services -l name=<label-name>
+
+// Delete all pods.
+$ kubectl delete pods --all
+
+// Return a snapshot of the logs from pod <pod-name>.
+$ kubectl logs <pod-name>
+
+// Start streaming the logs from pod <pod-name>. This is similiar to the 'tail -f' Linux command.
+$ kubectl logs -f <pod-name>
+
+kubectl exec -ti mytomcat -- bash
+
+kubectl expose deploy my-nginx --type=NodePort --port=80 --name=my-nginx
+
